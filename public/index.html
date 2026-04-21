@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Million Checkboxes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+        }
+        #checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+            gap: 2px;
+            max-width: 100vw;
+            margin: 0 auto;
+        }
+        .checkbox {
+            width: 18px;
+            height: 18px;
+        }
+        #info {
+            padding: 10px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h2>One Million Checkboxes</h2>
+        <p>Check/uncheck boxes in real-time with others! (Socket.IO powered)</p>
+        <span id="connected-users">Connected users: 0</span>
+    </div>
+    <div id="checkboxes"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/main.js"></script>
+</body>
+</html>
