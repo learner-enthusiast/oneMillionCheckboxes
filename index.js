@@ -29,9 +29,7 @@ async function logEvent(message) {
   const logLine = `[${timestamp.toISOString()}] ${message}\n`;
 
   // Always log to file
-  fs.appendFile(LOG_FILE, logLine, (err) => {
-    if (err) console.error('File log error:', err.message);
-  });
+
 
   // Try DB (non-blocking)
   if (getDrizzleDb && serverLogs) {
@@ -39,7 +37,10 @@ async function logEvent(message) {
       const db = await getDrizzleDb();
       await db.insert(serverLogs).values({ timestamp, message });
     } catch {
-      // silently ignore DB failures
+     console.error("DB insertion Failed")
+       fs.appendFile(LOG_FILE, logLine, (err) => {
+    if (err) console.error('File log error:', err.message);
+  });
     }
   }
 }
@@ -49,7 +50,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*', // tighten in production
+    origin: '*',
   },
 });
 

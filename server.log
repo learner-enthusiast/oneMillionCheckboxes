@@ -1,0 +1,17 @@
+[2026-04-21T13:32:50.154Z] Server running on http://localhost:3000
+[2026-04-21T13:32:51.822Z] User connected. Total: 1
+[2026-04-21T13:32:53.408Z] User connected. Total: 2
+[2026-04-21T13:32:55.817Z] User connected. Total: 3
+[2026-04-21T13:33:14.214Z] User disconnected. Total: 2
+[2026-04-21T13:33:14.750Z] User connected. Total: 3
+[2026-04-21T13:33:41.441Z] User disconnected. Total: 2
+[2026-04-21T13:33:41.985Z] User connected. Total: 3
+[2026-04-21T13:33:51.326Z] User disconnected. Total: 2
+[2026-04-21T13:33:52.327Z] User connected. Total: 3
+[2026-04-21T13:34:11.668Z] User disconnected. Total: 2
+[2026-04-21T13:34:52.433Z] Server running on http://localhost:3000
+[2026-04-21T13:34:53.822Z] User connected. Total: 1
+[2026-04-21T13:34:53.824Z] User connected. Total: 2
+[2026-04-21T13:35:16.861Z] Server running on http://localhost:3000
+[2026-04-21T13:35:17.822Z] User connected. Total: 1
+[2026-04-21T13:35:17.824Z] User connected. Total: 2
