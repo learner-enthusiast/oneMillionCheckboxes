@@ -4,22 +4,41 @@ import { ProtectedRoute } from "./routes/ProtectedRoute";
 import Home from "./pages/Home";
 import OIDC from "./pages/OIDC";
 import Login from "./pages/Login";
+import Checkbox from "./pages/Checkbox";
+import Location from "./pages/Location";
 
 function App() {
   return (
     <Routes>
-      <Route>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/oidc/auth" element={<OIDC />} />
-        <Route path="/login" element={<Login />} />
-      </Route>
+      <Route path="/oidc/auth" element={<OIDC />} />
+      <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/app/checkboxes"
+        element={
+          <ProtectedRoute>
+            <Checkbox />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/app/location"
+        element={
+          <ProtectedRoute>
+            <Location />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

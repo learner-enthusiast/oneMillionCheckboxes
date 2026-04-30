@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { assertDbConnected } from "./src/db/index.ts";
 import oidcRouter from "./src/routes/oidc.routes.ts";
+import http from "http";
+import { Server } from "socket.io";
+import { initSockets } from "./src/sockets/index.ts";
 dotenv.config();
 
 const app = express();
@@ -41,6 +44,14 @@ app.get("/health", (_req: express.Request, res: express.Response) => {
   return res.json({ health: "good" });
 });
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: whitelist,
+    credentials: true,
+  },
+});
+initSockets(io);
 async function start() {
   try {
     await assertDbConnected();
@@ -51,7 +62,10 @@ async function start() {
   }
 
   const port = Number(process.env.PORT ?? 3000);
-  app.listen(port, () => console.log(`App is listening at PORT : ${port}`));
+
+  server.listen(port, () => {
+    console.log(`App + Socket.IO running at PORT : ${port}`);
+  });
 }
 
 start();
