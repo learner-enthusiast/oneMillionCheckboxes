@@ -1,13 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { assertDbConnected } from "./src/db";
-
+import { assertDbConnected } from "./src/db/index.ts";
+import oidcRouter from "./src/routes/oidc.routes.ts";
 dotenv.config();
 
 const app = express();
 const whitelist = [
-  "http://localhost:5173",
+  "http://localhost:5174",
   "http://localhost:3000",
   "https://yourapp.com",
 ];
@@ -36,7 +36,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
-
+app.use("/api/oauth2", oidcRouter);
 app.get("/health", (_req: express.Request, res: express.Response) => {
   return res.json({ health: "good" });
 });
