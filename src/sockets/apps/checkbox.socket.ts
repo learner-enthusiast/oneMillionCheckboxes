@@ -38,11 +38,4 @@ export const registerCheckboxEvents = async (io: Server, socket: Socket) => {
 
     //emit only to relevant chunk
   });
-
-  await subscriber.subscribe("client:checkbox-update");
-  subscriber.on("message", (channel, message) => {
-    const parsed = JSON.parse(message);
-
-    socket.broadcast.emit("checkbox:updated", parsed);
-  });
 };

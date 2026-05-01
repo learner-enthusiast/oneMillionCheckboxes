@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-import { verifyAccessToken } from "../utils/jwt";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiError } from "../utils/ApiError";
+import { verifyAccessToken } from "../utils/jwt.ts";
+import { asyncHandler } from "../utils/asyncHandler.ts";
+import { ApiError } from "../utils/ApiError.ts";
 
 export const requireAuth = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

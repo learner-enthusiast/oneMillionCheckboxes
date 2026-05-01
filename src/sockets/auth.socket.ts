@@ -32,6 +32,8 @@ export const requireSocketAuth = async (
 
     next();
   } catch {
-    next(new Error("Invalid or expired token"));
+    const error = new Error("Invalid or expired token");
+    (error as any).data = { code: 401 };
+    next(error);
   }
 };
