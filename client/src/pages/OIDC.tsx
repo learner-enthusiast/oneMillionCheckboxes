@@ -2,7 +2,7 @@ import { oidc } from "@/BackendRoutes";
 import { setAccessTokenCookie } from "@/state/cookie";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
+import { setToLocalStorage } from "../utiltyFunctions/localStorage";
 const OIDC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const OIDC = () => {
         if (!accessToken) {
           throw new Error("No access token returned");
         }
-
+        setToLocalStorage("User", res?.data?.user);
         // save token
         setAccessTokenCookie(accessToken);
 

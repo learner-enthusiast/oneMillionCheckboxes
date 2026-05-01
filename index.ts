@@ -6,6 +6,8 @@ import oidcRouter from "./src/routes/oidc.routes.ts";
 import http from "http";
 import { Server } from "socket.io";
 import { initSockets } from "./src/sockets/index.ts";
+import { ApiResponse } from "./src/utils/ApiResponse.ts";
+import { redis } from "./src/redis/redis-connection.ts";
 dotenv.config();
 
 const app = express();
@@ -43,7 +45,16 @@ app.use("/api/oauth2", oidcRouter);
 app.get("/health", (_req: express.Request, res: express.Response) => {
   return res.json({ health: "good" });
 });
-
+app.get("/api/checkboxState", async (_, res) => {
+  const checkboxState = await redis.get("CHECKBOX_STATE_KEY");
+  return res.json(
+    new ApiResponse(
+      200,
+      { checkboxState },
+      "Checkbox state fetched succesfully",
+    ),
+  );
+});
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {

@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
-import { connectSocket } from "@/lib/socket";
+import { connectSocket } from "@/utiltyFunctions/socket";
 import { toast } from "sonner";
-
+import { checkBox } from "@/BackendRoutes";
+import { getFromLocalStorage } from "../utiltyFunctions/localStorage";
 const Checkbox = () => {
   const [socket, setSocket] = useState<any>(null);
-  const [checked, setChecked] = useState<boolean[]>(Array(100).fill(false));
-
-  const user = {
-    id: "user_1",
-    name: "Arnab",
-  };
-
+  const [checked, setChecked] = useState<boolean[]>([]);
+  const getUser = getFromLocalStorage("User");
   useEffect(() => {
     const s = connectSocket();
     setSocket(s);
+    const fetchCheckboxState = async () => {
+      const data = await checkBox.getCheckBoxState();
 
+      setChecked(JSON.parse(data.data.checkboxState));
+    };
+    fetchCheckboxState();
     s.on("checkbox:updated", (data: any) => {
       const { index, user } = data;
+      if (getUser.username !== user) {
+        setChecked((prev) => {
+          const updated = [...prev];
+          updated[index] = !updated[index];
+          return updated;
+        });
 
-      setChecked((prev) => {
-        const updated = [...prev];
-        updated[index] = !updated[index];
-        return updated;
-      });
-
-      // 🔥 Sonner toast
-      toast(`${user.name} updated a checkbox`);
+        toast(`${user} updated a checkbox`);
+      }
     });
 
     return () => {
@@ -35,10 +36,13 @@ const Checkbox = () => {
 
   const handleChange = (index: number) => {
     if (!socket) return;
-
+    setChecked((prev) => {
+      const updated = [...prev];
+      updated[index] = !updated[index];
+      return updated;
+    });
     socket.emit("checkbox:update", {
       index,
-      user,
     });
   };
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { connectSocket } from "@/lib/socket";
+import { connectSocket } from "@/utiltyFunctions/socket";
 
 const Location = () => {
   useEffect(() => {
