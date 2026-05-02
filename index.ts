@@ -10,6 +10,8 @@ import { ApiResponse } from "./src/utils/ApiResponse.ts";
 import { redis } from "./src/redis/redis-connection.ts";
 import { requireAuth } from "./src/middlewares/auth.middleware.ts";
 import { initRedisSubscriber } from "./src/redis/redis-subscriber.ts";
+import { connectProducer } from "./src/kafka/kafka-producer.ts";
+import { connectConsumer, startConsumer } from "./src/kafka/kafka-consumer.ts";
 dotenv.config();
 
 const app = express();
@@ -73,6 +75,17 @@ initRedisSubscriber(io);
 async function start() {
   try {
     await assertDbConnected();
+    await connectProducer();
+    await connectConsumer();
+    await startConsumer({
+      onLocation: (event) => {
+        console.log(event);
+        io.emit("location:updated", JSON.stringify(event));
+      },
+      onCheckbox: (event) => {
+        io.emit("checkbox:updated", JSON.stringify(event));
+      },
+    });
     console.log("db connected");
   } catch (err) {
     console.error("db connection failed:", err);

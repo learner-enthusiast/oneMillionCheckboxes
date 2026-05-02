@@ -13,6 +13,16 @@ type LocationMarker = {
   lng: number;
 };
 
+// Helper to validate marker
+function isValidMarker(marker: any): marker is LocationMarker {
+  return (
+    typeof marker?.lat === "number" &&
+    typeof marker?.lng === "number" &&
+    typeof marker?.userId === "number" &&
+    typeof marker?.username === "string"
+  );
+}
+
 const Location = () => {
   const socketRef = useRef<any>(null);
   const intervalRef = useRef<number | null>(null);
@@ -21,6 +31,12 @@ const Location = () => {
   const me = getFromLocalStorage("User");
 
   useEffect(() => {
+    if (!me?.userid || !me?.username) {
+      console.warn("User info not available from localStorage");
+      console.log(me);
+      return;
+    }
+
     const socket = connectSocket();
     socketRef.current = socket;
 
@@ -35,19 +51,21 @@ const Location = () => {
           lng: longitude,
         });
 
-        setMarkers((prev) => {
-          const myMarker: LocationMarker = {
-            userId: me?.id ?? 0,
-            username: me?.username ?? "Me",
-            lat: latitude,
-            lng: longitude,
-          };
+        const myMarker: LocationMarker = {
+          userId: me.userid,
+          username: me.username,
+          lat: latitude,
+          lng: longitude,
+        };
 
-          const others = prev.filter(
-            (marker) => marker.userId !== myMarker.userId,
-          );
-          return [...others, myMarker];
-        });
+        if (isValidMarker(myMarker)) {
+          setMarkers((prev) => {
+            const others = prev.filter(
+              (marker) => marker.userId !== myMarker.userId,
+            );
+            return [...others, myMarker];
+          });
+        }
       } catch (error) {
         console.error("Failed to get location:", error);
       }
@@ -56,12 +74,19 @@ const Location = () => {
     sendMyLocation();
     intervalRef.current = window.setInterval(sendMyLocation, 10000);
 
-    socket.on("location:updated", (data: LocationMarker) => {
-      console.log(data);
-      setMarkers((prev) => {
-        const filtered = prev.filter((marker) => marker.userId !== data.userId);
-        return [...filtered, data];
-      });
+    socket.on("location:updated", (data: any) => {
+      console.log("Received location:", data);
+
+      if (isValidMarker(data)) {
+        setMarkers((prev) => {
+          const filtered = prev.filter(
+            (marker) => marker.userId !== data.userId,
+          );
+          return [...filtered, data];
+        });
+      } else {
+        console.warn("Invalid location marker data:", data);
+      }
     });
 
     return () => {
@@ -70,7 +95,7 @@ const Location = () => {
       }
       socket.off("location:updated");
     };
-  }, []);
+  }, [me]);
 
   return (
     <div style={{ height: "100vh", width: "100%" }}>
