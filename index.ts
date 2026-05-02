@@ -12,6 +12,7 @@ import { requireAuth } from "./src/middlewares/auth.middleware.ts";
 import { initRedisSubscriber } from "./src/redis/redis-subscriber.ts";
 import { connectProducer } from "./src/kafka/kafka-producer.ts";
 import { connectConsumer, startConsumer } from "./src/kafka/kafka-consumer.ts";
+import { ENV } from "./src/utils/constants.ts";
 dotenv.config();
 
 const app = express();
@@ -92,7 +93,7 @@ async function start() {
     process.exit(1);
   }
 
-  const port = Number(process.env.PORT ?? 3000);
+  const port = Number(ENV.PORT ?? 3000);
 
   server.listen(port, () => {
     console.log(`App + Socket.IO running at PORT : ${port}`);

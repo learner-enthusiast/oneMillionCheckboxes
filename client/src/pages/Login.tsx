@@ -1,9 +1,10 @@
+import { ENV } from "@/lib/utils";
 import React from "react";
 
 const Login = () => {
-  const clientId = import.meta.env.VITE_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_REDIRECT_URI;
-  const issuer = import.meta.env.VITE_OIDC_ISSUER;
+  const clientId = ENV.CLIENT_ID;
+  const redirectUri = ENV.REDIRECT_URI;
+  const issuer = ENV.OIDC_ISSUER;
 
   const handleLogin = () => {
     const url = new URL(`${issuer}`);

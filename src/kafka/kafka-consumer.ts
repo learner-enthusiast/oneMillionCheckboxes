@@ -1,3 +1,4 @@
+import { ENV } from "../utils/constants.ts";
 import { kafka, TOPICS } from "./kafka-client.ts";
 
 type LocationEvent = {
@@ -22,7 +23,7 @@ type Handlers = {
 };
 
 const consumer = kafka.consumer({
-  groupId: process.env.KAFKA_GROUP_ID ?? "one-million-checkboxes-consumer",
+  groupId: ENV.KAFKA_GROUP_ID ?? "one-million-checkboxes-consumer",
 });
 
 export async function connectConsumer() {

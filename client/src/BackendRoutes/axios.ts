@@ -1,3 +1,4 @@
+import { ENV } from "@/lib/utils";
 import { getAccessTokenFromCookies } from "@/state/cookie";
 import axios, {
   AxiosHeaders,
@@ -7,7 +8,7 @@ import axios, {
 } from "axios";
 
 export function getApiBaseUrl() {
-  const envBase = import.meta.env.VITE_API_URL;
+  const envBase = ENV.API_URL;
   return envBase && String(envBase).trim()
     ? String(envBase).trim()
     : "http://localhost:3000";

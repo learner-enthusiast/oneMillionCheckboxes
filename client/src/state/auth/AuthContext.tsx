@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { getAccessTokenFromCookies } from "../cookie";
+import { ENV } from "@/lib/utils";
 
 type AuthContextValue = {
   accessToken: string | null;
@@ -39,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (emailOrUsername: string, password: string) => {
-      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const apiBase = ENV.API_URL ?? "";
 
       const res = await fetch(`${apiBase}/api/auth/login`, {
         method: "POST",

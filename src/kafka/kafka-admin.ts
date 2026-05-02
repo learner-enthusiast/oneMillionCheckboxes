@@ -1,7 +1,8 @@
 import "dotenv/config";
 import { Kafka, logLevel, type ITopicConfig } from "kafkajs";
+import { ENV } from "../utils/constants";
 
-const brokers = (process.env.KAFKA_BROKERS ?? "localhost:9092")
+const brokers = (ENV.KAFKA_BROKERS ?? "localhost:9092")
   .split(",")
   .map((b) => b.trim())
   .filter(Boolean);
@@ -11,21 +12,21 @@ if (brokers.length === 0) {
 }
 
 const kafka = new Kafka({
-  clientId: process.env.KAFKA_CLIENT_ID ?? "one-million-checkboxes-admin",
+  clientId: ENV.KAFKA_CLIENT_ID ?? "one-million-checkboxes-admin",
   brokers,
   logLevel: logLevel.INFO,
 });
 
 const topics: ITopicConfig[] = [
   {
-    topic: process.env.KAFKA_TOPIC_LOCATION ?? "location-updates",
-    numPartitions: Number(process.env.KAFKA_LOCATION_PARTITIONS ?? 3),
-    replicationFactor: Number(process.env.KAFKA_REPLICATION_FACTOR ?? 1),
+    topic: ENV.KAFKA_TOPIC_LOCATION ?? "location-updates",
+    numPartitions: Number(ENV.KAFKA_LOCATION_PARTITIONS ?? 3),
+    replicationFactor: Number(ENV.KAFKA_REPLICATION_FACTOR ?? 1),
   },
   {
-    topic: process.env.KAFKA_TOPIC_CHECKBOX ?? "checkbox-updates",
-    numPartitions: Number(process.env.KAFKA_CHECKBOX_PARTITIONS ?? 3),
-    replicationFactor: Number(process.env.KAFKA_REPLICATION_FACTOR ?? 1),
+    topic: ENV.KAFKA_TOPIC_CHECKBOX ?? "checkbox-updates",
+    numPartitions: Number(ENV.KAFKA_CHECKBOX_PARTITIONS ?? 3),
+    replicationFactor: Number(ENV.KAFKA_REPLICATION_FACTOR ?? 1),
   },
 ];
 
