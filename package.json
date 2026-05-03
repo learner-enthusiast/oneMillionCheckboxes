@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch index.ts"
+    "dev": "cross-env NODE_ENV=development tsx watch index.ts",
+    "prod": "cross-env NODE_ENV=production tsx watch index.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",

@@ -24,8 +24,8 @@ const Login = () => {
           onClick={handleLogin}
           className="w-full flex items-center justify-center gap-3 bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-lg transition"
         >
-          <span>🚀</span>
-          Login with Jhingalal
+          <span></span>
+          Login with Auth Mantra
         </button>
       </div>
     </div>

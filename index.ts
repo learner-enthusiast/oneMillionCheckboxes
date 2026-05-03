@@ -16,11 +16,7 @@ import { ENV } from "./src/utils/constants.ts";
 dotenv.config();
 
 const app = express();
-const whitelist = [
-  "http://localhost:5174",
-  "http://localhost:3000",
-  "https://yourapp.com",
-];
+const whitelist = ENV.CORS_ORIGIN?.split(",").map((origin) => origin.trim());
 
 app.use(
   cors({

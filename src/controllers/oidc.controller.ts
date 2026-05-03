@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError.ts";
 import { ApiResponse } from "../utils/ApiResponse.ts";
 import { asyncHandler } from "../utils/asyncHandler.ts";
 import { signAccessToken } from "../utils/jwt.ts";
+import { ENV } from "../utils/constants.ts";
 
 type OpenIdConfiguration = {
   issuer: string;
@@ -49,7 +50,7 @@ async function exchangeCodeForToken(
   const clientSecret = requireEnv("CLIENT_SECRET");
   const redirectUri = requireEnv("REDIRECT_URI");
 
-  const tokenResponse = await fetch(`http://localhost:3000/oidc/token`, {
+  const tokenResponse = await fetch(`${ENV.OIDC_ISSUER}/oidc/token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -5,6 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
+  preview: {
+    port: 1026,
+    allowedHosts: ["app.arnabsamanta.in"],
+  },
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),

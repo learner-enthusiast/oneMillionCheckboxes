@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+dotenv.config({
+  path: `.env.${process.env.NODE_ENV || "development"}`,
+});
 type EnvKey =
   | "PORT"
   | "DATABASE_URL"
@@ -11,7 +15,9 @@ type EnvKey =
   | "JWT_ACCESS_SECRET"
   | "JWT_REFRESH_SECRET"
   | "ACCESS_TOKEN_TTL"
-  | "REFRESH_TOKEN_TTL";
+  | "REFRESH_TOKEN_TTL"
+  | "CORS_ORIGIN"
+  | "OIDC_ISSUER";
 
 function requireEnv(key: EnvKey): string {
   const value = process.env[key];
@@ -60,4 +66,7 @@ export const ENV = {
 
   ACCESS_TOKEN_TTL: requireEnv("ACCESS_TOKEN_TTL"),
   REFRESH_TOKEN_TTL: requireEnv("REFRESH_TOKEN_TTL"),
+
+  CORS_ORIGIN: requireEnv("CORS_ORIGIN"),
+  OIDC_ISSUER: requireEnv("OIDC_ISSUER"),
 } as const;
