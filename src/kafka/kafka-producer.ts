@@ -25,6 +25,7 @@ export async function disconnectProducer() {
 }
 
 export async function publishLocation(event: LocationEvent) {
+  console.log(event);
   await producer.send({
     topic: TOPICS.location,
     messages: [

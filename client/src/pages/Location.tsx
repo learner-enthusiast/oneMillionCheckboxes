@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { connectSocket } from "@/utiltyFunctions/socket";
 import { getUserGeoLocation } from "@/utiltyFunctions/geoLocation";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  Tooltip,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { getFromLocalStorage } from "@/utiltyFunctions/localStorage";
 import { oidc } from "@/BackendRoutes";
 
-// FIX 1: Leaflet's default marker icons break in bundlers (Vite/Webpack) because
-// the asset paths are not resolved correctly at build time.
-// We manually delete the broken internal resolver and point Leaflet to the correct files.
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -21,14 +25,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
+// BUG FIX: Added `lastSeen` timestamp to track when a marker was last updated.
+// This is the key field used to decide if a user is still active or should be removed.
 type LocationMarker = {
   userId: number;
   username: string;
   lat: number;
   lng: number;
+  lastSeen: number; // Unix timestamp in ms (Date.now())
 };
 
-function isValidMarker(marker: any): marker is LocationMarker {
+// BUG FIX: `lastSeen` is optional in validation because it is injected locally
+// after receiving data — the backend does not need to send it.
+function isValidMarker(
+  marker: any,
+): marker is Omit<LocationMarker, "lastSeen"> {
   return (
     typeof marker?.lat === "number" &&
     typeof marker?.lng === "number" &&
@@ -37,28 +48,28 @@ function isValidMarker(marker: any): marker is LocationMarker {
   );
 }
 
-// FIX 2: MapContainer's `center` prop is NOT reactive — it only sets the initial
-// view and ignores all subsequent changes. To programmatically move the map,
-// we need a child component that calls useMap() to get the live map instance
-// and imperatively calls setView() whenever the target coordinates change.
+// How long (ms) without a location update before a user is removed from the map.
+const STALE_THRESHOLD_MS = 20_000;
+
+// How often (ms) we run the cleanup check. Every 5s is enough.
+const CLEANUP_INTERVAL_MS = 5_000;
+
 const RecenterMap = ({ lat, lng }: { lat: number; lng: number }) => {
   const map = useMap();
-
   useEffect(() => {
     map.setView([lat, lng], map.getZoom());
   }, [lat, lng, map]);
-
   return null;
 };
 
 const Location = () => {
   const socketRef = useRef<any>(null);
   const intervalRef = useRef<number | null>(null);
+  // BUG FIX: Separate ref for the stale-marker cleanup interval so we can
+  // clear it independently from the location-send interval on unmount.
+  const cleanupIntervalRef = useRef<number | null>(null);
 
   const [markers, setMarkers] = useState<LocationMarker[]>([]);
-
-  // FIX 3: Track the user's own coordinates in state so we can pass them
-  // to RecenterMap and dynamically re-center the map on first location fetch.
   const [myLocation, setMyLocation] = useState<{
     lat: number;
     lng: number;
@@ -67,11 +78,6 @@ const Location = () => {
   const me = getFromLocalStorage("User");
 
   useEffect(() => {
-    if (!me?.userid || !me?.username) {
-      console.warn("User info not available from localStorage");
-      return;
-    }
-
     const socket = connectSocket();
     socketRef.current = socket;
 
@@ -87,17 +93,15 @@ const Location = () => {
         });
 
         const myMarker: LocationMarker = {
-          userId: me.userid,
+          userId: me.userId,
           username: me.username,
           lat: latitude,
           lng: longitude,
+          lastSeen: Date.now(),
         };
 
         if (isValidMarker(myMarker)) {
-          // FIX 3 (continued): Update myLocation state to trigger RecenterMap re-render.
-          // Only meaningful on first load, but keeps the map following the user if they move.
           setMyLocation({ lat: latitude, lng: longitude });
-
           setMarkers((prev) => {
             const others = prev.filter(
               (marker) => marker.userId !== myMarker.userId,
@@ -111,51 +115,51 @@ const Location = () => {
     };
 
     sendMyLocation();
-    intervalRef.current = window.setInterval(sendMyLocation, 10000);
+    intervalRef.current = window.setInterval(sendMyLocation, 5000);
 
     socket.on("location:updated", (data: any) => {
-      console.log("Received location:", data);
+      data = JSON.parse(data);
 
-      // FIX 4: If markers from other users are still not appearing, log the raw shape here.
-      // The isValidMarker check will silently drop data if the backend sends
-      // `user_id` instead of `userId`, or `lat`/`lng` as strings instead of numbers.
-      // Confirm the payload shape matches { userId: number, username: string, lat: number, lng: number }.
       if (isValidMarker(data)) {
         setMarkers((prev) => {
           const filtered = prev.filter(
             (marker) => marker.userId !== data.userId,
           );
-          return [...filtered, data];
+          // BUG FIX: Inject `lastSeen` when storing a marker received from another user.
+          // The backend doesn't send this — we record it on the receiving end
+          // as "the last time we heard from this user".
+          return [...filtered, { ...data, lastSeen: Date.now() }];
         });
       } else {
-        console.warn(
-          "Invalid location marker data received — check backend payload shape:",
-          data,
-        );
+        console.warn("Invalid location marker data:", data);
       }
     });
 
-    return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
-      }
-      socket.off("location:updated");
-      socket.disconnect();
-    };
+    // BUG FIX: Stale marker cleanup interval.
+    // Every CLEANUP_INTERVAL_MS, filter out any marker whose `lastSeen`
+    // is older than STALE_THRESHOLD_MS. This removes users who disconnected,
+    // lost signal, or simply stopped emitting without a disconnect event.
+    cleanupIntervalRef.current = window.setInterval(() => {
+      const now = Date.now();
+      setMarkers((prev) =>
+        prev.filter((marker) => now - marker.lastSeen < STALE_THRESHOLD_MS),
+      );
+    }, CLEANUP_INTERVAL_MS);
 
-    // FIX 5: The original dependency was `me` (an object), which causes the effect to
-    // re-run on every render because a new object reference is created each time
-    // getFromLocalStorage() is called. Using the primitive `me?.userid` instead
-    // makes the dependency stable — the effect only re-runs if the logged-in user changes.
-  }, [me?.userid]);
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+      // BUG FIX: Clear the cleanup interval on unmount to avoid memory leaks.
+      if (cleanupIntervalRef.current)
+        window.clearInterval(cleanupIntervalRef.current);
+      socket.off("location:updated");
+    };
+  }, [me]);
 
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <MapContainer
-        // Fallback center while location hasn't loaded yet.
-        // RecenterMap will move the map to the real location once coordinates arrive.
         center={[19.075984, 72.877656]}
-        zoom={13}
+        zoom={10}
         scrollWheelZoom={true}
         style={{ height: "100%", width: "100%" }}
       >
@@ -164,14 +168,15 @@ const Location = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* FIX 2 (continued): Render RecenterMap only after we have real coordinates.
-            It renders nothing to the DOM — it just calls map.setView() as a side effect. */}
         {myLocation && (
           <RecenterMap lat={myLocation.lat} lng={myLocation.lng} />
         )}
 
         {markers.map((marker) => (
           <Marker key={marker.userId} position={[marker.lat, marker.lng]}>
+            <Tooltip permanent direction="top" offset={[0, -5]}>
+              {marker.username}
+            </Tooltip>
             <Popup>{marker.username}</Popup>
           </Marker>
         ))}
