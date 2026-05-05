@@ -6,6 +6,8 @@ import OIDC from "./pages/OIDC";
 import Login from "./pages/Login";
 import Checkbox from "./pages/Checkbox";
 import Location from "./pages/Location";
+import FreeAPI from "./pages/FreeAPI";
+import YTVideoPage from "./pages/FreeAPISubPages/YTVideoPage";
 
 function App() {
   return (
@@ -27,6 +29,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Checkbox />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/freeAPI/yt/:videoId"
+        element={
+          <ProtectedRoute>
+            <YTVideoPage />
           </ProtectedRoute>
         }
       />

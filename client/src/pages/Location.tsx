@@ -65,8 +65,7 @@ const RecenterMap = ({ lat, lng }: { lat: number; lng: number }) => {
 const Location = () => {
   const socketRef = useRef<any>(null);
   const intervalRef = useRef<number | null>(null);
-  // BUG FIX: Separate ref for the stale-marker cleanup interval so we can
-  // clear it independently from the location-send interval on unmount.
+
   const cleanupIntervalRef = useRef<number | null>(null);
 
   const [markers, setMarkers] = useState<LocationMarker[]>([]);
@@ -125,9 +124,6 @@ const Location = () => {
           const filtered = prev.filter(
             (marker) => marker.userId !== data.userId,
           );
-          // BUG FIX: Inject `lastSeen` when storing a marker received from another user.
-          // The backend doesn't send this — we record it on the receiving end
-          // as "the last time we heard from this user".
           return [...filtered, { ...data, lastSeen: Date.now() }];
         });
       } else {
@@ -135,10 +131,6 @@ const Location = () => {
       }
     });
 
-    // BUG FIX: Stale marker cleanup interval.
-    // Every CLEANUP_INTERVAL_MS, filter out any marker whose `lastSeen`
-    // is older than STALE_THRESHOLD_MS. This removes users who disconnected,
-    // lost signal, or simply stopped emitting without a disconnect event.
     cleanupIntervalRef.current = window.setInterval(() => {
       const now = Date.now();
       setMarkers((prev) =>
