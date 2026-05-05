@@ -51,7 +51,7 @@ app.get(
   },
 );
 app.get("/api/checkboxState", async (_, res) => {
-  const checkboxState = await redis.get("CHECKBOX_STATE_KEY");
+  const checkboxState = await redis.get(ENV.REDIS_CHECKBOX_KEY);
   return res.json(
     new ApiResponse(
       200,

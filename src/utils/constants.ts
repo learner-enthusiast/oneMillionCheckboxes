@@ -17,6 +17,8 @@ type EnvKey =
   | "ACCESS_TOKEN_TTL"
   | "REFRESH_TOKEN_TTL"
   | "CORS_ORIGIN"
+  | "NUMBER_OF_CHECKBOXES"
+  | "REDIS_CHECKBOX_KEY"
   | "OIDC_ISSUER";
 
 function requireEnv(key: EnvKey): string {
@@ -69,4 +71,6 @@ export const ENV = {
 
   CORS_ORIGIN: requireEnv("CORS_ORIGIN"),
   OIDC_ISSUER: requireEnv("OIDC_ISSUER"),
+  NUMBER_OF_CHECKBOXES: requireEnv("NUMBER_OF_CHECKBOXES"),
+  REDIS_CHECKBOX_KEY: requireEnv("REDIS_CHECKBOX_KEY"),
 } as const;

@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { publisher, redis, subscriber } from "../../redis/redis-connection.ts";
+import { ENV } from "../../utils/constants.ts";
 
 export const registerCheckboxEvents = async (io: Server, socket: Socket) => {
   /**
@@ -15,17 +16,17 @@ export const registerCheckboxEvents = async (io: Server, socket: Socket) => {
   socket.on("checkbox:update", async ({ index }: { index: number }) => {
     const chunkId = Math.floor(index / 1000);
 
-    console.log(`User ${socket.data.user?.id} updated checkbox ${index}`);
-    const existingState = await redis.get("CHECKBOX_STATE_KEY");
+    // console.log(`User ${socket.data.user?.id} updated checkbox ${index}`);
+    const existingState = await redis.get(ENV.REDIS_CHECKBOX_KEY);
 
     if (existingState) {
       const remoteData = JSON.parse(existingState);
       remoteData[index] = !remoteData[index];
-      await redis.set("CHECKBOX_STATE_KEY", JSON.stringify(remoteData));
+      await redis.set(ENV.REDIS_CHECKBOX_KEY, JSON.stringify(remoteData));
     } else {
       await redis.set(
-        "CHECKBOX_STATE_KEY",
-        JSON.stringify(Array(100).fill(false)),
+        ENV.REDIS_CHECKBOX_KEY,
+        JSON.stringify(Array(Number(ENV.NUMBER_OF_CHECKBOXES)).fill(false)),
       );
     }
 
