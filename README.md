@@ -2,7 +2,11 @@
 
 A real-time multi-app platform built with a shared backend and a React client. The project supports multiple authentication methods (OIDC and FreeAPI) and features real-time collaboration using Socket.IO, Redis pub/sub, and Kafka.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/3IPKBTWIYOk?si=Ac8HtPzcAnyIxFE9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+## Demo Video
+
+[![Watch the Demo](https://img.youtube.com/vi/3IPKBTWIYOk/maxresdefault.jpg)](https://youtu.be/3IPKBTWIYOk)
+
+Click the image above to watch the demo video.
 
 ## Table of Contents
 
