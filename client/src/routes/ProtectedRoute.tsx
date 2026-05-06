@@ -1,11 +1,11 @@
 import { useEffect, type ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
 
 import { useAuth } from "../state/auth/AuthContext";
 import { getAccessTokenFromCookies } from "@/state/cookie";
 
 type ProtectedRouteProps = {
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
@@ -26,5 +26,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  return children;
+  // If children prop is passed, render it (old behavior)
+  if (children) {
+    return children;
+  }
+
+  // Otherwise render nested routes via Outlet (new behavior)
+  return <Outlet />;
 }

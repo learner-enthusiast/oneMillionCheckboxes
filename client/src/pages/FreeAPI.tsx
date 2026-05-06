@@ -91,7 +91,7 @@ const FreeAPI = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-indigo-600 to-yellow-400">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 backdrop-blur-md bg-white/10 border-b border-white/20">
+      <header className="sticky top-15 z-30 backdrop-blur-md bg-white/10 border-b border-white/20">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="grid grid-cols-4 gap-5">
             {subApps.map((app) => (
