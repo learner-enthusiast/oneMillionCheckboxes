@@ -17,8 +17,9 @@ export const requireAuth = asyncHandler(
 
     try {
       const payload = verifyAccessToken(token);
+
       req.user = {
-        id: Number(payload.sub),
+        id: payload.sub,
         email: payload.email,
         username: payload.username,
       };

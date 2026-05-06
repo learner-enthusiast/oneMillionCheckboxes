@@ -40,7 +40,7 @@ const ACCESS_TTL = (ENV.ACCESS_TOKEN_TTL ?? "15m") as SignOptions["expiresIn"];
 const REFRESH_TTL = (ENV.REFRESH_TOKEN_TTL ?? "7d") as SignOptions["expiresIn"];
 
 export function signAccessToken(input: {
-  userId: number;
+  userId: number | string;
   email: string;
   username: string;
 }) {

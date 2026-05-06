@@ -28,7 +28,7 @@ L.Icon.Default.mergeOptions({
 // BUG FIX: Added `lastSeen` timestamp to track when a marker was last updated.
 // This is the key field used to decide if a user is still active or should be removed.
 type LocationMarker = {
-  userId: number;
+  userId: number | string;
   username: string;
   lat: number;
   lng: number;
@@ -43,7 +43,8 @@ function isValidMarker(
   return (
     typeof marker?.lat === "number" &&
     typeof marker?.lng === "number" &&
-    typeof marker?.userId === "number" &&
+    (typeof marker?.userId === "number" ||
+      typeof marker?.userId === "string") &&
     typeof marker?.username === "string"
   );
 }
@@ -92,7 +93,7 @@ const Location = () => {
         });
 
         const myMarker: LocationMarker = {
-          userId: me.userId,
+          userId: me.userId ?? me._id,
           username: me.username,
           lat: latitude,
           lng: longitude,
@@ -103,7 +104,8 @@ const Location = () => {
           setMyLocation({ lat: latitude, lng: longitude });
           setMarkers((prev) => {
             const others = prev.filter(
-              (marker) => marker.userId !== myMarker.userId,
+              (marker) =>
+                marker.userId.toString() !== myMarker.userId.toString(),
             );
             return [...others, myMarker];
           });
@@ -122,7 +124,7 @@ const Location = () => {
       if (isValidMarker(data)) {
         setMarkers((prev) => {
           const filtered = prev.filter(
-            (marker) => marker.userId !== data.userId,
+            (marker) => marker.userId.toString() !== data.userId.toString(),
           );
           return [...filtered, { ...data, lastSeen: Date.now() }];
         });
@@ -165,7 +167,10 @@ const Location = () => {
         )}
 
         {markers.map((marker) => (
-          <Marker key={marker.userId} position={[marker.lat, marker.lng]}>
+          <Marker
+            key={String(marker.userId)}
+            position={[marker.lat, marker.lng]}
+          >
             <Tooltip permanent direction="top" offset={[0, -5]}>
               {marker.username}
             </Tooltip>

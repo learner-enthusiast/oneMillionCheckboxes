@@ -11,7 +11,22 @@ async function getFreeApi<T>(path: string, params?: Record<string, unknown>) {
   const res = await freeApi.get<T>(path, { params });
   return res.data?.data;
 }
+const authApi = axios.create({
+  baseURL: "https://api.freeapi.app/api/v1/users",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
+async function postAuthApi<T>(path: string, data: Record<string, unknown>) {
+  const res = await authApi.post<T>(path, data);
+  return res.data?.data;
+}
+
+async function getAuthApi<T>(path: string) {
+  const res = await authApi.get<T>(path);
+  return res.data?.data;
+}
 export const freeAPI = {
   // YouTube
   getYouTubeVideos: <T = unknown>(params?: {
@@ -88,6 +103,19 @@ export const freeAPI = {
   }) => getFreeApi<T>("/randomusers", params),
   getAUser: <T = unknown>(userId: string) =>
     getFreeApi<T>(`/randomusers/${encodeURIComponent(userId)}`),
+  registerUser: <T = unknown>(data: {
+    email: string;
+    password: string;
+    role: string;
+    username: string;
+  }) => postAuthApi<T>("/register", data),
+
+  loginUser: <T = unknown>(data: { username: string; password: string }) =>
+    postAuthApi<T>("/login", data),
+
+  logoutUser: <T = unknown>() => postAuthApi<T>("/logout", {}),
+
+  getCurrentUser: <T = unknown>() => getAuthApi<T>("/current-user"),
 };
 
 export default freeAPI;

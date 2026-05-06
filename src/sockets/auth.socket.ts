@@ -25,7 +25,7 @@ export const requireSocketAuth = async (
     const payload = await verifyAccessToken(token);
 
     socket.data.user = {
-      id: Number(payload.sub),
+      id: payload.sub,
       email: payload.email,
       username: payload.username,
     };

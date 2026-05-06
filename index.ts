@@ -13,6 +13,7 @@ import { initRedisSubscriber } from "./src/redis/redis-subscriber.ts";
 import { connectProducer } from "./src/kafka/kafka-producer.ts";
 import { connectConsumer, startConsumer } from "./src/kafka/kafka-consumer.ts";
 import { ENV } from "./src/utils/constants.ts";
+import freeAPIRouter from "./src/routes/freeAPI.routes.ts";
 dotenv.config();
 
 const app = express();
@@ -43,6 +44,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 app.use("/api/oauth2", oidcRouter);
+app.use("/api/freeAPI", freeAPIRouter);
 app.get(
   "/health",
   requireAuth,
