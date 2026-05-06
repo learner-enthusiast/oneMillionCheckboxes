@@ -56,6 +56,20 @@ export const Apps = [
   },
 ];
 
+interface PaginatedResponse<T> {
+  data: T[];
+  totalItems: number;
+  page?: number;
+}
+
+interface UsePaginatedDataOptions<T> {
+  fetchFn: (params: {
+    page: number;
+    limit: number;
+  }) => Promise<PaginatedResponse<T>>;
+  initialLimit?: number;
+}
+
 import { useEffect, useState } from "react";
 
 interface PaginatedResponse<T> {
@@ -84,27 +98,31 @@ export function usePaginatedData<T>({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+    const controller = new AbortController();
+
     const load = async () => {
       setLoading(true);
       setError(null);
       try {
         const res = await fetchFn({ page, limit });
-        if (!mounted) return;
+
+        // don't update state if this request was aborted/superseded
+        if (controller.signal.aborted) return;
+
         setItems(Array.isArray(res.data) ? res.data : []);
         setTotal(res.totalItems);
         if (typeof res.page === "number") setPage(res.page);
       } catch (e: any) {
-        if (!mounted) return;
+        if (controller.signal.aborted) return;
         setError(e?.message ?? "Failed to load data");
       } finally {
-        if (mounted) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
+
     load();
-    return () => {
-      mounted = false;
-    };
+
+    return () => controller.abort();
   }, [page, limit]);
 
   return {

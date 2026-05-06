@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import YT_app from "./FreeAPISubPages/YT_app";
 import Listing_app from "./FreeAPISubPages/Listing_app";
@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { oidc } from "@/BackendRoutes";
 
 const FreeAPI = () => {
   const subApps = [
@@ -70,6 +71,22 @@ const FreeAPI = () => {
   );
 
   const ActiveComponent = activeApp.component;
+
+  useEffect(() => {
+    const ping = async () => {
+      try {
+        await oidc.healthRoute();
+      } catch (e) {
+        console.error("Health check failed:", e);
+      }
+    };
+
+    ping(); // call immediately on mount
+
+    const interval = setInterval(ping, 10 * 60 * 1000); // then every 10 mins
+
+    return () => clearInterval(interval); // cleanup on unmount
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-indigo-600 to-yellow-400">

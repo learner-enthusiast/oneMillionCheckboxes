@@ -37,7 +37,7 @@ export function PaginationIconsOnly({
   const rangeEnd = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex items-center justify-between gap-6 rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-muted-foreground shadow-sm">
+    <div className="flex flex-wrap items-center justify-between gap-6 rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-muted-foreground shadow-sm">
       {/* Rows per page */}
       <Field orientation="horizontal" className="w-fit items-center gap-2">
         <FieldLabel

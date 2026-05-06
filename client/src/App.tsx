@@ -33,6 +33,14 @@ function App() {
         }
       />
       <Route
+        path="/app/freeAPI"
+        element={
+          <ProtectedRoute>
+            <FreeAPI />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/app/freeAPI/yt/:videoId"
         element={
           <ProtectedRoute>
